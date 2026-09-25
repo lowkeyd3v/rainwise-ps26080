@@ -1,0 +1,84 @@
+# ============================================================
+# PS 26080 - Regime-Aware Monsoon Rainfall Post-Processing
+# Model Configuration
+# ============================================================
+
+# --- Regime Classifier (Transformer + SOM) ---
+regime_classifier:
+  n_regimes: 6
+  regime_names:
+    - "active_monsoon"
+    - "break_monsoon"
+    - "depression_low"
+    - "orographic"
+    - "coastal"
+    - "western_disturbance"
+
+  som:
+    grid_x: 3
+    grid_y: 2
+    sigma: 1.0
+    learning_rate: 0.5
+    n_iterations: 10000
+
+  transformer:
+    d_model: 256
+    nhead: 8
+    num_encoder_layers: 4
+    dim_feedforward: 512
+    dropout: 0.1
+    input_channels: 10   # U850, V850, Z500, OLR, U200, V200, T850, Q850, elev, slope
+
+  training:
+    epochs: 50
+    batch_size: 32
+    lr: 1e-4
+    weight_decay: 1e-5
+    scheduler: "cosine"
+
+# --- MoE Bias Corrector (U-Net with 6 expert heads) ---
+moe_corrector:
+  n_experts: 6
+  shared_encoder:
+    in_channels: 5       # NWP_rainfall, U850, V850, Topography, Regime_conf
+    base_features: 64
+    depth: 4
+  expert_decoder:
+    base_features: 64
+    out_channels: 1      # Corrected rainfall
+
+  gating:
+    type: "softmax"      # Options: softmax, argmax (hard), learned
+    temperature: 1.0
+
+  training:
+    epochs: 80
+    batch_size: 16
+    lr: 5e-4
+    loss: "mse_with_extreme_penalty"
+    extreme_weight: 3.0  # Extra weight for heavy rainfall events
+
+# --- QRNN Heavy Rainfall Probability ---
+qrnn:
+  quantiles: [0.25, 0.50, 0.75, 0.90, 0.95, 0.99]
+  thresholds_mm:
+    heavy: 64.5
+    very_heavy: 115.0
+    extremely_heavy: 204.4
+  architecture:
+    hidden_dims: [256, 128, 64]
+    dropout: 0.2
+  calibration: "isotonic"
+  training:
+    epochs: 60
+    batch_size: 64
+    lr: 1e-3
+
+# --- Verification ---
+verification:
+  fss_scales_km: [50, 100, 200, 500]
+  thresholds_mm: [1.0, 10.0, 35.5, 64.5, 115.0]
+  baselines:
+    - "raw_nwp"
+    - "quantile_mapping"
+    - "climatology"

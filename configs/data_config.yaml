@@ -1,0 +1,67 @@
+# ============================================================
+# PS 26080 - Data Configuration
+# ============================================================
+
+# Domain
+domain:
+  lat_min: 6.5
+  lat_max: 38.5
+  lon_min: 66.5
+  lon_max: 100.5
+  resolution_deg: 0.25
+  monsoon_months: [6, 7, 8, 9]   # JJAS
+  training_years: [1991, 2015]
+  validation_years: [2016, 2019]
+  test_years: [2020, 2023]
+
+# ERA5 variables to download
+era5:
+  pressure_levels: [850, 500, 200]
+  variables:
+    - "u_component_of_wind"
+    - "v_component_of_wind"
+    - "geopotential"
+    - "temperature"
+    - "specific_humidity"
+  single_level_variables:
+    - "mean_top_net_thermal_radiation"   # proxy for OLR
+    - "total_precipitation"
+    - "2m_temperature"
+    - "sea_surface_temperature"
+  output_dir: "data/raw/era5/"
+
+# IMD Gridded Rainfall (Pai et al. 0.25 degree)
+imd_gridded:
+  source_url: "https://imdpune.gov.in/cmpg/Griddata/"
+  years: [1991, 2023]
+  output_dir: "data/raw/imd_gridded/"
+  variable: "RAINFALL"
+
+# NWP Forecast (GFS via NOAA NOMADS as proxy for NCMRWF)
+nwp_forecast:
+  source: "GFS_NOMADS"
+  base_url: "https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/"
+  variables: ["APCP"]   # Accumulated Precipitation
+  lead_times_hours: [24, 48, 72, 96, 120]
+  output_dir: "data/raw/nwp_forecast/"
+
+# Topography
+topography:
+  source: "ETOPO1"
+  url: "https://www.ngdc.noaa.gov/mgg/global/relief/ETOPO1/data/"
+  output_dir: "data/raw/shapefiles/"
+
+# District Shapefile
+districts:
+  source: "GADM"
+  url: "https://gadm.org/download_country.html"
+  country: "IND"
+  level: 2   # District level
+  n_districts: 766
+  output_dir: "data/raw/shapefiles/"
+
+# Processed feature paths
+processed:
+  features_dir: "data/processed/features/"
+  regime_labels_dir: "data/processed/regime_labels/"
+  verification_dir: "data/processed/verification/"
