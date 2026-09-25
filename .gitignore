@@ -45,6 +45,9 @@ frontend/out/
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs & PPT
 *.log
 reports/*.pdf
+*.ppt
+*.pptx
+*.png
