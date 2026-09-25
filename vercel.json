@@ -1,11 +1,5 @@
-# Vercel deployment configuration for Next.js frontend
 {
   "framework": "nextjs",
-  "rootDirectory": "frontend",
   "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://rainwise-api.onrender.com"
-  }
+  "installCommand": "npm install"
 }
